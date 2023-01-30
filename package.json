@@ -9,7 +9,10 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "dayjs": "^1.11.7",
     "firebase": "^8.2.7",
+    "pinia": "^2.0.29",
+    "pinia-plugin-persistedstate": "^3.0.2",
     "vite-jsconfig-paths": "^2.0.1",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"

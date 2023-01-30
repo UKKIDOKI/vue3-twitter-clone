@@ -5,8 +5,16 @@ import MessagesVue from "@/pages/Messages.vue";
 import ProfileVue from "@/pages/Profile.vue";
 import LoginVue from "@/pages/Login.vue";
 import RegisterVue from "@/pages/Register.vue";
+import NotFoundView from "@/pages/Register.vue";
+import { useUserStore } from "@/store/user";
 
 const routes = [
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    component: NotFoundView,
+    meta: { isMenu: false, layout: "NotFoundView" },
+  },
   {
     path: "/",
     name: "home",
@@ -100,6 +108,17 @@ const router = createRouter({
   // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
   history: createWebHistory(),
   routes, // short for `routes: routes`
+});
+
+router.beforeEach((to, from, next) => {
+  // 인증되지않았을때 로그인페이지로 강제 리다이렉트
+
+  const store = useUserStore();
+  const currentUser = store.$state.user;
+  const requireAuth = to.matched.some((record) => record.meta.requireAuth);
+  if (requireAuth && !currentUser) next("/login");
+  // 인증되었을때 from에서 to로 이동
+  else next();
 });
 
 export default router;

@@ -23,13 +23,22 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { auth, USER_COLEECTION } from "@/firebase/index";
 import { useRouter, useRoute } from "vue-router";
+import { useUserStore } from "@/store/user";
+// import { storeToRefs } from "pinia";
 // import store from "@/storse/index";
+
+onMounted(() => {
+  console.log("onMounted", store.$state.user);
+});
+
 const route = useRoute();
 const router = useRouter();
 const loading = ref(false);
+const store = useUserStore();
+// const { SET_USER } = storeToRefs(store);
 
 const LoginUserInfo = ref({
   email: route.query.userEmail,
@@ -51,7 +60,11 @@ const onLogin = async () => {
 
     // get user info
     const doc = await USER_COLEECTION.doc(user.uid).get();
-    console.log(doc);
+    // console.log("dasdsadada", store.SET_USER);
+    // console.log(doc.data());
+
+    store.SET_USER(doc.data());
+    console.log(store.$state.user);
     // store.commit("SET_USER", doc.data());
     router.replace("/");
   } catch (e) {

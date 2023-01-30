@@ -29,13 +29,18 @@
       <!-- profile button -->
       <div class="xl:pr-3 mb-3 relative" @click="showProfileDropdown = true">
         <button class="hidden xl:flex mt-3 px-2 py-1 w-full h-12 rounded-full hover:bg-blue-50 items-center">
+          <img :src="currentUser.profile_image_url" class="w-10 h-10 rounded-full" />
           <div class="xl:ml-2 hidden xl:block">
-            <div class="text-sm font-bold">=</div>
-            <div class="text-xs text-gray-500 text-left"></div>
+            <div class="text-sm font-bold">{{ currentUser.email }}</div>
+            <div class="text-xs text-gray-500 text-left">
+              @{{ currentUser.username }}
+            </div>
           </div>
           <i class="ml-auto fas fa-ellipsis-h fa-fw text-xs hidden xl:block"></i>
         </button>
-        <div class="xl:hidden flex justify-center"></div>
+        <div class="xl:hidden flex justify-center">
+          <img :src="currentUser.profile_image_url" class="w-10 h-10 rounded-full cursor-pointer hover:opacity-80" />
+        </div>
       </div>
     </div>
     <!-- main section -->
@@ -46,27 +51,45 @@
     <div class="absolute bottom-20 left-12 shadow rounded-lg w-60 bg-white" v-if="showProfileDropdown"
       @click="showProfileDropdown = false">
       <button class="hover:bg-gray-50 border-b border-gray-100 flex p-3 w-full items-center">
+        <img :src="currentUser.profile_image_url" class="w-10 h-10 rounded-full" />
         <div class="ml-2">
-          <div class="font-bold text-sm"></div>
-          <div class="text-left text-gray-500 text-sm"></div>
+          <div class="font-bold text-sm">{{ currentUser.email }}</div>
+          <div class="text-left text-gray-500 text-sm">
+            @{{ currentUser.username }}
+          </div>
         </div>
         <i class="fas fa-check text-primary ml-auto"></i>
       </button>
       <button class="p-3 hover:bg-gray-50 w-full text-left text-sm" @click="onLogout">
-        계정에서 로그아웃
+        @{{ currentUser.username }} 계정에서 로그아웃
       </button>
     </div>
-
     <!-- tweet modal popup -->
     <tweet-modal v-if="showTweetModal" @close-modal="showTweetModal = false"></tweet-modal>
   </div>
 </template>
 
 <script setup>
-import { ref, onBeforeMount } from "vue";
+import { ref, onBeforeMount, computed } from "vue";
+import { auth } from "@/firebase";
 import router from "@/router/index";
+import TweetModal from "@/components/TweetModal.vue";
+import { useUserStore } from "@/store/user";
+const showProfileDropdown = ref(false);
+const showTweetModal = ref(false);
+
 const routes = ref([]);
+const store = useUserStore();
+const currentUser = computed(() => store.$state.user);
+
+const onLogout = async () => {
+  await auth.signOut();
+  store.SET_USER(null);
+  await router.replace("/login");
+};
+
 onBeforeMount(() => {
+  console.log(router.options.routes);
   routes.value = router.options.routes.filter(
     (route) => route.meta.isMenu == true
   );
